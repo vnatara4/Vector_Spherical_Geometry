@@ -1,0 +1,63 @@
+/*----------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+#include <MKL25Z4.H>
+#include <stdio.h>
+#include "gpio_defs.h"
+#include "LCD_4bit.h"
+#include "LEDs.h"
+#include "switches.h"
+#include "timers.h"
+#include "i2c.h"
+#include "mma8451.h"
+#include "delay.h"
+#include "profile.h"
+#include "math.h"
+#include "geometry.h"
+#include "proto.h"
+
+extern 	void test_atan2_approx(void);
+
+// #define USE_LCD
+#define TEST1_LAT (40.0)
+#define TEST1_LON (40.0)
+
+
+/*----------------------------------------------------------------------------
+  MAIN function
+ *----------------------------------------------------------------------------*/
+int main (void) {
+#ifdef USE_LCD
+	char buffer[9];
+#endif
+	float dist, bearing, cur_pos_lat, cur_pos_lon;
+	char * name;
+
+	cur_pos_lat = TEST1_LAT;
+	cur_pos_lon = TEST1_LON;
+	
+	Init_RGB_LEDs();
+
+#ifdef USE_LCD
+	Init_LCD();
+	Clear_LCD();
+	Set_Cursor(0,0);
+	Print_LCD(" Hello  ");
+	Set_Cursor(0,1);
+	Print_LCD(" World! ");
+#endif
+
+	Init_Profiling();
+	__enable_irq();
+
+	Control_RGB_LEDs(1,0,1); // Purple: running
+
+	Enable_Profiling();
+	Find_Nearest_Waypoint(cur_pos_lat, cur_pos_lon, &dist, &bearing, &name);
+	Disable_Profiling();
+
+	Control_RGB_LEDs(0,0,1);	// Blue: done
+	while (1)
+		;
+}
+
+// *******************************ARM University Program Copyright © ARM Ltd 2013*************************************   
